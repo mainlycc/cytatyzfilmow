@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+model User {
+  id              String    @id @default(cuid())
+  username        String    @unique
+  email           String    @unique
+  hashedPassword  String
+  bio             String?
+  profilePicture  String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  favoriteMovies  FavoriteMovie[]
+  memes           Meme[]
+  quizzes         Quiz[]
+  quizAttempts    QuizAttempt[]
+  comments        Comment[]
+  discussions     Discussion[]
+  discussionReplies DiscussionReply[]
+}
+
+model FavoriteMovie {
+  id        String   @id @default(cuid())
+  title     String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, title])
+}
+
+model Meme {
+  id        String   @id @default(cuid())
+  imageUrl  String
+  text      String?
+  hashtags  String[]
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+  likes     Int      @default(0)
+}
+
+model Quiz {
+  id            String        @id @default(cuid())
+  question      String
+  options       String[]
+  correctAnswer String
+  movie         String
+  authorId      String
+  author        User         @relation(fields: [authorId], references: [id])
+  createdAt     DateTime     @default(now())
+  attempts      QuizAttempt[]
+}
+
+model QuizAttempt {
+  id        String   @id @default(cuid())
+  quizId    String
+  quiz      Quiz     @relation(fields: [quizId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  answer    String
+  isCorrect Boolean
+  createdAt DateTime @default(now())
+}
+
+model Discussion {
+  id        String            @id @default(cuid())
+  title     String
+  content   String
+  authorId  String
+  author    User             @relation(fields: [authorId], references: [id])
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  replies   DiscussionReply[]
+  comments  Comment[]
+}
+
+model DiscussionReply {
+  id           String     @id @default(cuid())
+  content      String
+  authorId     String
+  author       User       @relation(fields: [authorId], references: [id])
+  discussionId String
+  discussion   Discussion @relation(fields: [discussionId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Comment {
+  id           String     @id @default(cuid())
+  content      String
+  authorId     String
+  author       User       @relation(fields: [authorId], references: [id])
+  discussionId String
+  discussion   Discussion @relation(fields: [discussionId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+} 

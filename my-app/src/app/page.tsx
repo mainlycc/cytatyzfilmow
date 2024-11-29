@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 import { Textarea } from "@/components/ui/textarea"
 import { Film, MessageSquare, ImageIcon, Upload, User, Mail, Star, Youtube, Instagram, Facebook, Twitter, Camera, Hash } from 'lucide-react'
+import { useTMDB } from '@/hooks/useTMDB'
 
 type User = {
   username: string;
@@ -104,6 +105,16 @@ const upcomingPremieres: UpcomingPremiere[] = [
   { id: 5, title: "Deadpool 3", releaseDate: "26 lipca 2024", genre: "Akcja/Komedia" },
 ]
 
+// Dodaj nowe interfejsy dla danych z TMDB
+interface TMDBMovie {
+  id: number;
+  title: string;
+  vote_average: number;
+  poster_path: string;
+  release_date: string;
+  overview: string;
+}
+
 export default function CytatyZFilmowComponent() {
   const [activeTab, setActiveTab] = useState('home')
   const [memeText, setMemeText] = useState('')
@@ -170,6 +181,13 @@ export default function CytatyZFilmowComponent() {
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [score, setScore] = useState(0);
 
+  // Dodaj nowe hooki do pobierania danych
+  const { data: trendingMovies, loading: trendingLoading } = 
+    useTMDB<TMDBMovie>('/trending/movie/week');
+  
+  const { data: upcomingMoviesData, loading: upcomingLoading } = 
+    useTMDB<TMDBMovie>('/movie/upcoming');
+    
   useEffect(() => {
     if (canvasRef.current && (memeImage || selectedTemplate)) {
       const ctx = canvasRef.current.getContext('2d')
